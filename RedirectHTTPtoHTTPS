@@ -1,0 +1,21 @@
+touch /opt/mailcow-dockerized/data/conf/nginx/redirect.conf 
+add the following server config to the file:
+
+server {
+  root /web;
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  include /etc/nginx/conf.d/server_name.active;
+  if ( $request_uri ~* "%0A|%0D" ) { return 403; }
+  location ^~ /.well-known/acme-challenge/ {
+    allow all;
+    default_type "text/plain";
+  }
+  location / {
+    return 301 https://$host$uri$is_args$args;
+  }
+}
+
+
+Restart Nginx from /opt/mailcow-dockerized
+docker-compose restart nginx-mailcow
